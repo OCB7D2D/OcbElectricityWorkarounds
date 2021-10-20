@@ -136,4 +136,28 @@ public class OcbElectricityBugfixes
         }
     }
 
+    // Pressure plates, trip wires and motion sensors exhibit a strange behavior
+    // when duration is set to `triggered` with a `startDelay`. If a target is
+    // standing on the plate/wire, the power should go on after the delay and
+    // once the target steps of the plate/wire, it should stay on for the whole
+    // duration; in case of `triggered` it should instantly turn off. If the
+    // target steps off the plate/write before the delay has passed, power
+    // would still be turned on after the delay, but never turned off...
+    [HarmonyPatch(typeof(PowerTrigger))]
+    [HarmonyPatch("CachedUpdateCall")]
+    public class PowerTrigger_CachedUpdateCall
+    {
+        static void Prefix(PowerTrigger __instance,
+            bool ___isTriggered, ref float ___delayStartTime)
+        {
+            // Check if trigger is being deactivated ans if trigger duration is set to `triggered` (instant on/off)
+            // In that case it doesn't make sense to wait for the start delay, since it should instantly turn off again
+            // Unfortunately in the original game this edge-cause would cause the power to be on permanently (this fixes it).
+            if (___isTriggered == false && __instance.TriggerPowerDuration == PowerTrigger.TriggerPowerDurationTypes.Triggered)
+            {
+                ___delayStartTime = -1;
+            }
+        }
+    }
+
 }
