@@ -11,7 +11,7 @@ public class OcbElectricityBugfixes
     {
         public void Start()
         {
-            Debug.Log("Loading Electricity Bugfixes: " + GetType().ToString());
+            Debug.Log("Loading OCB Electricity Bugfixes Patch: " + GetType().ToString());
             var harmony = new Harmony(GetType().ToString());
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
