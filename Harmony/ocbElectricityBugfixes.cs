@@ -16,7 +16,6 @@ public class OcbElectricityBugfixes
             harmony.PatchAll(Assembly.GetExecutingAssembly());
         }
     }
-   
 
     // Don't count down power duration if trigger is still active
     // Only count down after the trigger has been deactivated
@@ -105,7 +104,7 @@ public class OcbElectricityBugfixes
             }
         }
     }
-    
+
     // Don't forcefully remove children if one trigger goes inactive
     // Some child might be another trigger, forming a trigger group,
     // thus if one sub-triggers is active, children stay connected.
@@ -115,16 +114,35 @@ public class OcbElectricityBugfixes
     {
         static bool Prefix(PowerTrigger __instance)
         {
+            // Trigger Switches do not contribute to trigger groups in vanilla
+            if (__instance.TriggerType == PowerTrigger.TriggerTypes.Switch) {
+                return true;
+            }
+            // Make sure no parent is triggered
+            if (__instance.Parent != null) {
+                if (__instance.Parent is PowerTrigger upstream) {
+                    if (upstream.TriggerType != PowerTrigger.TriggerTypes.Switch) {
+                        if (upstream.IsActive) {
+                            return false;
+                        }
+                    }
+                }
+            }
             for (int index = 0; index < __instance.Children.Count; ++index)
             {
                 // If child is another trigger, only disconnect if not active
                 if (__instance.Children[index] is PowerTrigger trigger)
                 {
-                    if (trigger.IsActive) continue;
+                    trigger.SetTriggeredByParent(__instance.IsActive);
+                    if (trigger.TriggerType == PowerTrigger.TriggerTypes.Switch) {
+                        // We are not active, so Switches will break the group
+                    }
+                    else if (trigger.IsActive) {
+                        continue;
+                    }
                     trigger.HandleDisconnectChildren();
                 }
-                else
-                {
+                else {
                     __instance.Children[index].HandleDisconnect();
                 }
             }
