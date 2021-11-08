@@ -4,7 +4,7 @@
 		<Name value="ElectricityWorkarounds" />
 		<Description value="Electricity bugfixes (Harmony Patch)" />
 		<Website value="https://github.com/OCB7D2D/ElectricityBugfixes" />
-		<Author value="mgreter" />
+		<Author value="ocbMaurice" />
 		<Version value="0.1.3" />
 	</ModInfo>
 </xml>
