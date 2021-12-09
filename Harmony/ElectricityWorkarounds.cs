@@ -1,20 +1,16 @@
-using DMT;
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
 
-public class OcbElectricityBugfixes
+public class ElectricityWorkarounds : IModApi
 {
 
-    // Entry class for Harmony patching
-    public class OcbElectricityBugfixes_Init : IHarmony
+    // Entry class for A20 patching
+    public void InitMod(Mod mod)
     {
-        public void Start()
-        {
-            Debug.Log("Loading OCB Electricity Bugfixes Patch: " + GetType().ToString());
-            var harmony = new Harmony(GetType().ToString());
-            harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
+        Log.Out("Loading OCB Electricity Bugfixes Patch: " + GetType().ToString());
+        var harmony = new Harmony(GetType().ToString());
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 
     // Don't count down power duration if trigger is still active

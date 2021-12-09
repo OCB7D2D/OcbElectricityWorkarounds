@@ -1,12 +1,9 @@
-# OCB Electricity Bugfixes - 7 Days to Die (Harmony) Addon
+# OCB Electricity Bugfixes - 7 Days to Die (A20) Addon
 
 This Mod fixes some Bugs I found in the original game during the
 development of my Electricity Overhaul Mod. I've extracted these
 into its own project, since they also fix some edge-cases with the
-vanilla game implementation. Also this is Harmony only and should
-therefore be EAC compatible (If I understood this right).
-
-In order to use this Mod you need to have [DMT][1] installed.
+vanilla game implementation.
 
 ## Fix 1 - Better power duration support with sensors/triggers
 
@@ -40,8 +37,18 @@ step over the plate, the power will go on after the delay but never
 turn off. Power should never be on in the first place in this case.
 This applies also to trip wires and motion sensors.
 
+## Changes
+
+### Version 0.2.0
+
+- Refactor for A20 compatibility
+
+### Download and Install
+
+Simply download here from GitHub and put into your A20 Mods folder:
+
+- https://github.com/OCB7D2D/ElectricityWorkarounds/archive/master.zip
+
 ## Compatibility
 
-I've developed and tested this Mod against version a19.6b8.
-
-[1]: https://github.com/HAL-NINE-THOUSAND/DMT
+I've developed and tested this Mod against version a20.b218.
