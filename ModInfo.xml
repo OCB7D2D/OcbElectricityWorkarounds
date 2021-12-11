@@ -2,9 +2,9 @@
 <xml>
 	<ModInfo>
 		<Name value="ElectricityWorkarounds" />
-		<Description value="Electricity bugfixes (Harmony Patch)" />
+		<Description value="Electricity bugfixes (A20)" />
 		<Website value="https://github.com/OCB7D2D/ElectricityBugfixes" />
 		<Author value="ocbMaurice" />
-		<Version value="0.2.0" compat="A20"/>
+		<Version value="0.3.0" compat="A20"/>
 	</ModInfo>
 </xml>

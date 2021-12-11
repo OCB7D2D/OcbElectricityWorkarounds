@@ -1,6 +1,7 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Reflection;
+using System.Collections.Generic;
 
 public class ElectricityWorkarounds : IModApi
 {
@@ -101,51 +102,105 @@ public class ElectricityWorkarounds : IModApi
         }
     }
 
+    // Check if `child` belongs to the same trigger group as `trigger`
+    // Note: changing this implementation alone will probably not change
+    // the whole trigger group logic accross the whole game (needs testing)
+    public static bool IsSameTriggerGroup(PowerTrigger trigger, PowerTrigger child)
+    {
+        return child.TriggerType != PowerTrigger.TriggerTypes.Switch
+            && trigger.PowerItemType != PowerItem.PowerItemTypes.Timer;
+    }
+
+    // Reset parent trigger flags until we find another active child
+    // Goes down the whole tree of triggers until one is active itself
+    public static void ResetTriggeredByParent(PowerTrigger trigger)
+    {
+        for (int index = 0; index < trigger.Children.Count; ++index)
+        {
+            if (trigger.Children[index] is PowerTrigger child)
+            {
+                child.SetTriggeredByParent(false);
+                // If child is still active, it means it is now
+                // active on it's own (e.g. `isActive` is true).
+                if (!child.IsActive) ResetTriggeredByParent(child);
+            }
+        }
+    }
+
     // Don't forcefully remove children if one trigger goes inactive
     // Some child might be another trigger, forming a trigger group,
     // thus if one sub-triggers is active, children stay connected.
+    // If any of my parents belonging to my trigger group is active, nothing changed
+    // Disconnect all end points that have no active child trigger in their group
     [HarmonyPatch(typeof(PowerTrigger))]
     [HarmonyPatch("HandleDisconnectChildren")]
     public class PowerTrigger_HandleDisconnectChildren
     {
-        static bool Prefix(PowerTrigger __instance)
+        static bool Prefix(PowerTrigger __instance, ref bool ___hasChangesLocal,
+            ref bool ___lastTriggered, ref bool ___isTriggered, bool ___parentTriggered)
         {
-            // Trigger Switches do not contribute to trigger groups in vanilla
-            if (__instance.TriggerType == PowerTrigger.TriggerTypes.Switch) {
-                return true;
+
+            // Let the world know that we are no longer active
+            // Otherwise the new state will not be persisted
+            if (__instance.TileEntity is TileEntityPoweredTrigger te)
+            {
+                te.Activate(false, te.IsTriggered);
+                te.SetModified();
             }
-            // Make sure no parent is triggered
-            if (__instance.Parent != null) {
-                if (__instance.Parent is PowerTrigger upstream) {
-                    if (upstream.TriggerType != PowerTrigger.TriggerTypes.Switch) {
-                        if (upstream.IsActive) {
-                            return false;
+
+            // Abort now if I'm also parent triggered
+            if (___parentTriggered) return false;
+
+            // Reset all parent triggers on children
+            // Stops until a child is active itself
+            ResetTriggeredByParent(__instance);
+
+            List<PowerItem> disconnects = new List<PowerItem>();
+            Queue<PowerTrigger> queue = new Queue<PowerTrigger>();
+            queue.Enqueue(__instance);
+            while (queue.Count > 0) {
+                PowerItem child = queue.Dequeue();
+                for (int i = 0; i < child.Children.Count; ++i)
+                {
+                    // Check if child is another power trigger
+                    if (child.Children[i] is PowerTrigger trigger)
+                    {
+                        // Check if child trigger is in the same group
+                        if (IsSameTriggerGroup(__instance, trigger))
+                        {
+                            // If child trigger is active the whole group
+                            // downstream is active, so skip it completely
+                            if (trigger.IsActive) continue;
+                            // Otherwise check new child trigger
+                            queue.Enqueue(trigger);
+                        }
+                        else
+                        {
+                            // Child has broken the group
+                            disconnects.Add(trigger);
                         }
                     }
+                    // Otherwise group is broken
+                    else
+                    {
+                        disconnects.Add(child.Children[i]);
+                    }
                 }
             }
-            for (int index = 0; index < __instance.Children.Count; ++index)
+
+            foreach (PowerItem item in disconnects)
             {
-                // If child is another trigger, only disconnect if not active
-                if (__instance.Children[index] is PowerTrigger trigger)
+                // item.HandlePowerUpdate(false);
+                if (item is PowerTrigger trigger)
                 {
-                    trigger.SetTriggeredByParent(__instance.IsActive);
-                    if (trigger.TriggerType == PowerTrigger.TriggerTypes.Switch) {
-                        // We are not active, so Switches will break the group
-                    }
-                    else if (trigger.IsActive) {
-                        continue;
-                    }
                     trigger.HandleDisconnectChildren();
                 }
-                else {
-                    __instance.Children[index].HandleDisconnect();
+                else
+                {
+                    item.HandleDisconnect();
                 }
             }
-            // Disable power for this instance?
-            // Get better results without this?
-            // __instance.HandlePowerUpdate(false);
-            // Fully replace implementation
+
             return false;
         }
     }
@@ -164,7 +219,7 @@ public class ElectricityWorkarounds : IModApi
         static void Prefix(PowerTrigger __instance,
             bool ___isTriggered, ref float ___delayStartTime)
         {
-            // Check if trigger is being deactivated ans if trigger duration is set to `triggered` (instant on/off)
+            // Check if trigger is being deactivated and if trigger duration is set to `triggered` (instant on/off)
             // In that case it doesn't make sense to wait for the start delay, since it should instantly turn off again
             // Unfortunately in the original game this edge-cause would cause the power to be on permanently (this fixes it).
             if (___isTriggered == false && __instance.TriggerPowerDuration == PowerTrigger.TriggerPowerDurationTypes.Triggered)

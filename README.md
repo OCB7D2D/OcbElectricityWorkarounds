@@ -5,6 +5,8 @@ development of my Electricity Overhaul Mod. I've extracted these
 into its own project, since they also fix some edge-cases with the
 vanilla game implementation.
 
+You need to disable EAC to use this mod!
+
 ## Fix 1 - Better power duration support with sensors/triggers
 
 If you configure a Motion Sensor or a Trip Wire to have a power
@@ -38,6 +40,10 @@ turn off. Power should never be on in the first place in this case.
 This applies also to trip wires and motion sensors.
 
 ## Changes
+
+### Version 0.2.0
+
+- Rework fix how trigger groups are disconnected
 
 ### Version 0.2.0
 
