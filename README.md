@@ -41,7 +41,7 @@ This applies also to trip wires and motion sensors.
 
 ## Changes
 
-### Version 0.2.0
+### Version 0.3.0
 
 - Rework fix how trigger groups are disconnected
 
