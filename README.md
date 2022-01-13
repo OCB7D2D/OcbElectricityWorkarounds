@@ -41,6 +41,10 @@ This applies also to trip wires and motion sensors.
 
 ## Changes
 
+### Version 0.3.1
+
+- Fix `AudioSource_InteractFullVolume` not found issue
+
 ### Version 0.3.0
 
 - Rework fix how trigger groups are disconnected
