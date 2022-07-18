@@ -7,6 +7,11 @@ vanilla game implementation.
 
 You need to disable EAC to use this mod!
 
+[![GitHub CI Compile Status][4]][3]
+
+[3]: https://github.com/OCB7D2D/ElectricityWorkarounds/actions/workflows/ci.yml
+[4]: https://github.com/OCB7D2D/ElectricityWorkarounds/actions/workflows/ci.yml/badge.svg
+
 ## Fix 1 - Better power duration support with sensors/triggers
 
 If you configure a Motion Sensor or a Trip Wire to have a power
@@ -39,7 +44,20 @@ step over the plate, the power will go on after the delay but never
 turn off. Power should never be on in the first place in this case.
 This applies also to trip wires and motion sensors.
 
+## Fix 4 - Potential bugfix for vanilla power.dat reset
+
+When the save game doesn't load correctly or is aborted too early,
+the PowerManager will still write it's state to disk, even though
+it might not have been loaded yet, thus overwriting existing save.
+
 ## Changes
+
+### Version 0.3.2
+
+- Add potential fix for [vanilla power.dat reset bug][1]
+- Automated deployment and release packaging
+
+[1] https://community.7daystodie.com/a20-bug-database/confirmed/powerdat-overwritten-with-empty-file-when-server-is-shutting-down-during-restart-r605/
 
 ### Version 0.3.1
 
