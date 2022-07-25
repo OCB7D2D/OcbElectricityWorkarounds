@@ -52,6 +52,10 @@ it might not have been loaded yet, thus overwriting existing save.
 
 ## Changes
 
+### Version 0.3.3
+
+- Fix visual glitch with power switch emission
+
 ### Version 0.3.2
 
 - Add potential fix for [vanilla power.dat reset bug][1]

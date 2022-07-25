@@ -144,7 +144,7 @@ public class ElectricityWorkarounds : IModApi
             // Otherwise the new state will not be persisted
             if (__instance.TileEntity is TileEntityPoweredTrigger te)
             {
-                te.Activate(false, te.IsTriggered);
+                te.Activate(te.IsPowered, te.IsTriggered);
                 te.SetModified();
             }
 
