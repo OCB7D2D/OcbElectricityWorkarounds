@@ -1,6 +1,0 @@
-<configs>
-
-	<!-- A small bug found in first A20 version, good chance it is already fixed in a later version -->
-	<setattribute xpath="/Sounds/SoundDataNode[@name='wire_live_connect']/AudioSource" name="name">Sounds/AudioSource_InteractFullVolume</setattribute>
-
-</configs>

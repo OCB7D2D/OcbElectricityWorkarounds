@@ -1,4 +1,4 @@
-# OCB Electricity Bugfixes - 7 Days to Die (A20) Addon
+# OCB Electricity Bugfixes - 7 Days to Die (A21) Addon
 
 This Mod fixes some Bugs I found in the original game during the
 development of my Electricity Overhaul Mod. I've extracted these
@@ -49,8 +49,14 @@ This applies also to trip wires and motion sensors.
 When the save game doesn't load correctly or is aborted too early,
 the PowerManager will still write it's state to disk, even though
 it might not have been loaded yet, thus overwriting existing save.
+Note that this Bug seems fixed with A21, but my fix is still included,
+as it may add even a bit more protection and it doesn't hurt.
 
 ## Changes
+
+### Version 0.4.0
+
+- Update compatibility for 7D2D A21.0(b324)
 
 ### Version 0.3.3
 
@@ -83,4 +89,4 @@ Simply download here from GitHub and put into your A20 Mods folder:
 
 ## Compatibility
 
-I've developed and tested this Mod against version a20.b218.
+Developed initially for version A20(b218), updated through A21.0(b324).

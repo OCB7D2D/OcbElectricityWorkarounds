@@ -1,21 +1,54 @@
 using HarmonyLib;
-using UnityEngine;
-using System.Reflection;
 using System.Collections.Generic;
+using System.Reflection;
+using UnityEngine;
 
 public class ElectricityWorkarounds : IModApi
 {
 
-    // Entry class for A20 patching
+    // ####################################################################
+    // ####################################################################
+
     public void InitMod(Mod mod)
     {
-        Log.Out("Loading OCB Electricity Bugfixes Patch: " + GetType().ToString());
-        var harmony = new Harmony(GetType().ToString());
+        Log.Out("OCB Harmony Patch: " + GetType().ToString());
+        Harmony harmony = new Harmony(GetType().ToString());
         harmony.PatchAll(Assembly.GetExecutingAssembly());
     }
 
+    // ####################################################################
     // Don't count down power duration if trigger is still active
     // Only count down after the trigger has been deactivated
+    // ####################################################################
+
+    public static float GetTimeByDuration(PowerTrigger.TriggerPowerDurationTypes duration)
+    {
+        switch (duration)
+        {
+            case PowerTrigger.TriggerPowerDurationTypes.Always: return -1;
+            case PowerTrigger.TriggerPowerDurationTypes.Triggered: return 0.0f;
+            case PowerTrigger.TriggerPowerDurationTypes.OneSecond: return 1f;
+            case PowerTrigger.TriggerPowerDurationTypes.TwoSecond: return 2f;
+            case PowerTrigger.TriggerPowerDurationTypes.ThreeSecond: return 3f;
+            case PowerTrigger.TriggerPowerDurationTypes.FourSecond: return 4f;
+            case PowerTrigger.TriggerPowerDurationTypes.FiveSecond: return 5f;
+            case PowerTrigger.TriggerPowerDurationTypes.SixSecond: return 6f;
+            case PowerTrigger.TriggerPowerDurationTypes.SevenSecond: return 7f;
+            case PowerTrigger.TriggerPowerDurationTypes.EightSecond: return 8f;
+            case PowerTrigger.TriggerPowerDurationTypes.NineSecond: return 9f;
+            case PowerTrigger.TriggerPowerDurationTypes.TenSecond: return 10f;
+            case PowerTrigger.TriggerPowerDurationTypes.FifteenSecond: return 15f;
+            case PowerTrigger.TriggerPowerDurationTypes.ThirtySecond: return 30f;
+            case PowerTrigger.TriggerPowerDurationTypes.FourtyFiveSecond: return 45f;
+            case PowerTrigger.TriggerPowerDurationTypes.OneMinute: return 60f;
+            case PowerTrigger.TriggerPowerDurationTypes.FiveMinute: return 300f;
+            case PowerTrigger.TriggerPowerDurationTypes.TenMinute: return 600f;
+            case PowerTrigger.TriggerPowerDurationTypes.ThirtyMinute: return 1800f;
+            case PowerTrigger.TriggerPowerDurationTypes.SixtyMinute: return 3600f;
+        }
+        return -1;
+    }
+
     [HarmonyPatch(typeof(PowerTrigger))]
     [HarmonyPatch("set_IsTriggered")]
     public class PowerTrigger_SetIsTriggered
@@ -26,81 +59,23 @@ public class ElectricityWorkarounds : IModApi
             ref float ___lastPowerTime,
             ref float ___powerTime)
         {
-            if (__instance.TriggerType != PowerTrigger.TriggerTypes.Switch)
-            {
-                if (___delayStartTime == -1.0)
-                {
-                    ___isActive = true;
-                    ___lastPowerTime = Time.time;
-                    // Had to copy `SetupDurationTime` due to protection
-                    // This way we keep the patch EAC compatible (I guess)
-                    switch (__instance.TriggerPowerDuration)
-                    {
-                        case PowerTrigger.TriggerPowerDurationTypes.Always:
-                            ___powerTime = -1f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.Triggered:
-                            ___powerTime = 0.0f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.OneSecond:
-                            ___powerTime = 1f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.TwoSecond:
-                            ___powerTime = 2f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.ThreeSecond:
-                            ___powerTime = 3f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.FourSecond:
-                            ___powerTime = 4f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.FiveSecond:
-                            ___powerTime = 5f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.SixSecond:
-                            ___powerTime = 6f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.SevenSecond:
-                            ___powerTime = 7f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.EightSecond:
-                            ___powerTime = 8f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.NineSecond:
-                            ___powerTime = 9f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.TenSecond:
-                            ___powerTime = 10f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.FifteenSecond:
-                            ___powerTime = 15f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.ThirtySecond:
-                            ___powerTime = 30f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.FourtyFiveSecond:
-                            ___powerTime = 45f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.OneMinute:
-                            ___powerTime = 60f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.FiveMinute:
-                            ___powerTime = 300f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.TenMinute:
-                            ___powerTime = 600f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.ThirtyMinute:
-                            ___powerTime = 1800f;
-                            break;
-                        case PowerTrigger.TriggerPowerDurationTypes.SixtyMinute:
-                            ___powerTime = 3600f;
-                            break;
-                    }
-                }
-            }
+            if (___delayStartTime != -1.0) return;
+            // Don't apply the new behavior to real switches
+            if (__instance.TriggerType == PowerTrigger.TriggerTypes.Switch) return;
+            ___isActive = true;
+            ___lastPowerTime = Time.time;
+            ___powerTime = GetTimeByDuration(
+                __instance.TriggerPowerDuration);
         }
     }
+
+    // ####################################################################
+    // Don't forcefully remove children if one trigger goes inactive
+    // Some child might be another trigger, forming a trigger group,
+    // thus if one sub-triggers is active, children stay connected.
+    // If any of my parents belonging to my trigger group is active, nothing changed
+    // Disconnect all end points that have no active child trigger in their group
+    // ####################################################################
 
     // Check if `child` belongs to the same trigger group as `trigger`
     // Note: changing this implementation alone will probably not change
@@ -127,11 +102,6 @@ public class ElectricityWorkarounds : IModApi
         }
     }
 
-    // Don't forcefully remove children if one trigger goes inactive
-    // Some child might be another trigger, forming a trigger group,
-    // thus if one sub-triggers is active, children stay connected.
-    // If any of my parents belonging to my trigger group is active, nothing changed
-    // Disconnect all end points that have no active child trigger in their group
     [HarmonyPatch(typeof(PowerTrigger))]
     [HarmonyPatch("HandleDisconnectChildren")]
     public class PowerTrigger_HandleDisconnectChildren
@@ -139,7 +109,6 @@ public class ElectricityWorkarounds : IModApi
         static bool Prefix(PowerTrigger __instance, ref bool ___hasChangesLocal,
             ref bool ___lastTriggered, ref bool ___isTriggered, bool ___parentTriggered)
         {
-
             // Let the world know that we are no longer active
             // Otherwise the new state will not be persisted
             if (__instance.TileEntity is TileEntityPoweredTrigger te)
@@ -158,7 +127,8 @@ public class ElectricityWorkarounds : IModApi
             List<PowerItem> disconnects = new List<PowerItem>();
             Queue<PowerTrigger> queue = new Queue<PowerTrigger>();
             queue.Enqueue(__instance);
-            while (queue.Count > 0) {
+            while (queue.Count > 0)
+            {
                 PowerItem child = queue.Dequeue();
                 for (int i = 0; i < child.Children.Count; ++i)
                 {
@@ -205,6 +175,7 @@ public class ElectricityWorkarounds : IModApi
         }
     }
 
+    // ####################################################################
     // Pressure plates, trip wires and motion sensors exhibit a strange behavior
     // when duration is set to `triggered` with a `startDelay`. If a target is
     // standing on the plate/wire, the power should go on after the delay and
@@ -212,6 +183,8 @@ public class ElectricityWorkarounds : IModApi
     // duration; in case of `triggered` it should instantly turn off. If the
     // target steps off the plate/write before the delay has passed, power
     // would still be turned on after the delay, but never turned off...
+    // ####################################################################
+
     [HarmonyPatch(typeof(PowerTrigger))]
     [HarmonyPatch("CachedUpdateCall")]
     public class PowerTrigger_CachedUpdateCall
@@ -229,7 +202,8 @@ public class ElectricityWorkarounds : IModApi
         }
     }
 
-    // Below are the potential fixes for the power.dat reset
+    // ####################################################################
+    // ####################################################################
 
     static bool PM_Loaded = false;
 
@@ -264,5 +238,7 @@ public class ElectricityWorkarounds : IModApi
         }
     }
 
+    // ####################################################################
+    // ####################################################################
 
 }
