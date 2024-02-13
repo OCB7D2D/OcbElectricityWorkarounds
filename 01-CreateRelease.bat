@@ -1,6 +1,6 @@
 @echo off
 
-SET NAME=ElectricityWorkarounds
+SET NAME=OcbElectricityWorkarounds
 
 if not exist build\ (
   mkdir build

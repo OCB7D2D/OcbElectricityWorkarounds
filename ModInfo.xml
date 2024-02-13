@@ -3,8 +3,8 @@
 	<!-- named `Workarounds` for load order -->
 	<Name value="OcbElectricityWorkarounds" />
 	<DisplayName value="OCB Electricity Bugfixes" />
-	<Description value="Electricity bugfixes (A20)" />
-	<Website value="https://github.com/OCB7D2D/ElectricityBugfixes" />
+	<Description value="Electricity bugfixes (A21)" />
+	<Website value="https://github.com/OCB7D2D/OcbElectricityBugfixes" />
 	<Author value="ocbMaurice" />
-	<Version value="0.4.0" />
+	<Version value="0.4.1" />
 </xml>
