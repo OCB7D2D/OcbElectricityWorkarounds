@@ -9,8 +9,8 @@ You need to disable EAC to use this mod!
 
 [![GitHub CI Compile Status][4]][3]
 
-[3]: https://github.com/OCB7D2D/ElectricityWorkarounds/actions/workflows/ci.yml
-[4]: https://github.com/OCB7D2D/ElectricityWorkarounds/actions/workflows/ci.yml/badge.svg
+[3]: https://github.com/OCB7D2D/OcbElectricityWorkarounds/actions/workflows/ci.yml
+[4]: https://github.com/OCB7D2D/OcbElectricityWorkarounds/actions/workflows/ci.yml/badge.svg
 
 ## Fix 1 - Better power duration support with sensors/triggers
 
@@ -54,6 +54,10 @@ as it may add even a bit more protection and it doesn't hurt.
 
 ## Changes
 
+### Version 0.4.1
+
+- Change mod folder to add OCB prefix
+
 ### Version 0.4.0
 
 - Update compatibility for 7D2D A21.0(b324)
@@ -83,10 +87,11 @@ as it may add even a bit more protection and it doesn't hurt.
 
 ### Download and Install
 
-Simply download here from GitHub and put into your A20 Mods folder:
+Simply download here from GitHub and put into your A21 Mods folder:
 
-- https://github.com/OCB7D2D/ElectricityWorkarounds/archive/master.zip
+- https://github.com/OCB7D2D/OcbElectricityWorkarounds/releases
+- https://github.com/OCB7D2D/OcbElectricityWorkarounds/archive/master.zip
 
 ## Compatibility
 
-Developed initially for version A20(b218), updated through A21.0(b324).
+Developed initially for version A20(b218), updated through A21.2(b37)
